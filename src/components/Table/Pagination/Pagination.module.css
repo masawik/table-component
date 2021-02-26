@@ -1,0 +1,20 @@
+.box {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pageButton {
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+.active {
+    background-color: #c7c7c7;
+}
+
+.pageButton:not(:last-child) {
+    margin-right: 3px;
+}

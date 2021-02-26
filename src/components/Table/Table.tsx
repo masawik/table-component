@@ -1,6 +1,7 @@
 import React, {ChangeEvent, ReactNode, useCallback, useState} from 'react'
 import styles from './Table.module.css'
 import cn from 'classnames'
+import Pagination from './Pagination/Pagination'
 
 export type TTableHeaderFields = Map<string, string | number>
 type TTableValues = {
@@ -19,15 +20,25 @@ type TSortOptions = {
   isOrderDesc: boolean
 }
 
+const ITEMS_PER_PAGE = 10
+
 const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
+  const [page, setPage] = useState(1)
   const [sortOptions, setSortOptions] = useState<TSortOptions>({field: null, isOrderDesc: false})
   const [localValues, setLocalValues] = useState<TTableValues[]>(values)
   const [searchValue, setSearchValue] = useState('')
   const headerKeys = Array.from(headerFields.keys())
+
   const getRow = useCallback((val: TTableValues): ReactNode => {
     const $cols = headerKeys.map(i => <td key={val[i]}>{val[i]}</td>)
     return (<tr key={val.id}>{$cols}</tr>)
   }, [])
+
+  const getValuesToRender = useCallback(() => {
+    const from = (page - 1) * ITEMS_PER_PAGE
+    const to = page * ITEMS_PER_PAGE
+    return localValues.slice(from, to)
+  }, [page, localValues])
 
   const onSort = useCallback((field: string) => {
     let isOrderDesc = sortOptions.isOrderDesc
@@ -39,12 +50,11 @@ const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
       setSortOptions({field, isOrderDesc})
     }
     const sorted = [...localValues.sort((prev, next) => {
-      console.log(prev[field], next[field])
       return prev[field] < next[field] ? -1 : 1
     })]
     if (isOrderDesc) sorted.reverse()
     setLocalValues(sorted)
-  }, [sortOptions])
+  }, [sortOptions, localValues])
 
   const searchHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const searchQuery = e.target.value
@@ -56,6 +66,7 @@ const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
       }
     })]
     setLocalValues(newList)
+    setPage(1)
   }, [])
 
   const $header: ReactNode = Array.from(headerFields)
@@ -74,7 +85,7 @@ const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
     }
     )
 
-  const $cols = localValues.map(i => getRow(i))
+  const $cols = getValuesToRender().map(i => getRow(i))
   return (
     <>
       <label>
@@ -92,6 +103,11 @@ const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
           {$cols}
         </tbody>
       </table>
+      <Pagination
+        location={page}
+        pagesCount={Math.ceil(localValues.length / ITEMS_PER_PAGE)}
+        onChange={(newPage) => setPage(newPage)}
+      />
     </>
   )
 }
