@@ -1,4 +1,4 @@
-import React, {ReactNode, useCallback, useState} from 'react'
+import React, {ChangeEvent, ReactNode, useCallback, useState} from 'react'
 import styles from './Table.module.css'
 import cn from 'classnames'
 
@@ -22,6 +22,7 @@ type TSortOptions = {
 const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
   const [sortOptions, setSortOptions] = useState<TSortOptions>({field: null, isOrderDesc: false})
   const [localValues, setLocalValues] = useState<TTableValues[]>(values)
+  const [searchValue, setSearchValue] = useState('')
   const headerKeys = Array.from(headerFields.keys())
   const getRow = useCallback((val: TTableValues): ReactNode => {
     const $cols = headerKeys.map(i => <td key={val[i]}>{val[i]}</td>)
@@ -38,11 +39,24 @@ const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
       setSortOptions({field, isOrderDesc})
     }
     const sorted = [...localValues.sort((prev, next) => {
+      console.log(prev[field], next[field])
       return prev[field] < next[field] ? -1 : 1
     })]
     if (isOrderDesc) sorted.reverse()
     setLocalValues(sorted)
   }, [sortOptions])
+
+  const searchHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const searchQuery = e.target.value
+    const searchRegex = new RegExp(searchQuery)
+    setSearchValue(searchQuery)
+    const newList = [...values.filter(i => {
+      for (const value of Object.values(i)) {
+        if (searchRegex.test(value+'')) return true
+      }
+    })]
+    setLocalValues(newList)
+  }, [])
 
   const $header: ReactNode = Array.from(headerFields)
     .map(([k, v]) => {
@@ -63,7 +77,10 @@ const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
   const $cols = localValues.map(i => getRow(i))
   return (
     <>
-      <input type="text"/>
+      <label>
+        Поиск
+        <input value={searchValue} onChange={searchHandler} className={styles.searchInput} type="text"/>
+      </label>
       <table className={styles.table}>
         {title && <caption className={styles.title}>{title}</caption>}
         <thead>
