@@ -20,7 +20,7 @@ type TSortOptions = {
   isOrderDesc: boolean
 }
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 50
 
 const Table: React.FC<TTableProps> = ({title, headerFields, values}) => {
   const [page, setPage] = useState(1)

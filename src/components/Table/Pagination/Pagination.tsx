@@ -8,21 +8,20 @@ type TPaginationProps = {
   location: number
 }
 
-const MAX_COUNT_OF_DISPLAYED_PAGES = 15
-
+const MAX_COUNT_OF_DISPLAYED_PAGES = 11
 const Pagination: React.FC<TPaginationProps> = ({onChange, pagesCount, location}) => {
 
   const changePageHandler = (page: number) => {
     onChange(page)
   }
 
-  //todo переделать отображение страниц
+  const pagesIndent = Math.floor(MAX_COUNT_OF_DISPLAYED_PAGES / 2)
   const $pages = Array(pagesCount).fill(null).map((_, index) => {
     const pageNumber = index + 1
-    if (pagesCount >= MAX_COUNT_OF_DISPLAYED_PAGES) {
-      if (location > pageNumber && pageNumber <= pagesCount - MAX_COUNT_OF_DISPLAYED_PAGES) return
-      if (pageNumber >= MAX_COUNT_OF_DISPLAYED_PAGES + location) return
-    }
+    if (pageNumber < location - pagesIndent && location < pagesCount - pagesIndent) return
+    if (pageNumber > location + pagesIndent && location > pagesIndent) return
+    if (location < pagesIndent + 1 && pageNumber > MAX_COUNT_OF_DISPLAYED_PAGES) return
+    if (location > pagesCount - pagesIndent - 1 && pageNumber <= pagesCount - MAX_COUNT_OF_DISPLAYED_PAGES) return
 
     return (
       <button
@@ -37,39 +36,41 @@ const Pagination: React.FC<TPaginationProps> = ({onChange, pagesCount, location}
 
   return (
     <div className={styles.box}>
-      <button
-        onClick={() => changePageHandler(location - 1)}
-        disabled={location <= 1}
-        className={styles.pageButton}
-      >
-        {'<'}
-      </button>
-
-      {
-        pagesCount >= MAX_COUNT_OF_DISPLAYED_PAGES
-        &&
-        location > 1
-        &&
-        <div className={styles.pageButton} style={{border: 'none'}}>...</div>
-      }
+      <span className={styles.fastTravelLeftBox}>
+        <button
+          onClick={() => changePageHandler(1)}
+          className={styles.pageButton}
+          disabled={location === 1}
+        >
+          {'<<'}
+        </button>
+        <button
+          onClick={() => changePageHandler(location - 1)}
+          className={styles.pageButton}
+          disabled={location === 1}
+        >
+          {'<'}
+        </button>
+      </span>
 
       {$pages}
 
-      {
-        pagesCount >= MAX_COUNT_OF_DISPLAYED_PAGES
-        &&
-        location <= pagesCount - MAX_COUNT_OF_DISPLAYED_PAGES
-        &&
-        <div className={styles.pageButton} style={{border: 'none'}}>...</div>
-      }
-
-      <button
-        onClick={() => changePageHandler(location + 1)}
-        disabled={location >= pagesCount}
-        className={styles.pageButton}
-      >
-        {'>'}
-      </button>
+      <span className={styles.fastTravelRightBox}>
+        <button
+          onClick={() => changePageHandler(location + 1)}
+          className={styles.pageButton}
+          disabled={location === pagesCount}
+        >
+          {'>'}
+        </button>
+        <button
+          onClick={() => changePageHandler(pagesCount)}
+          className={styles.pageButton}
+          disabled={location === pagesCount}
+        >
+          {'>>'}
+        </button>
+      </span>
     </div>
   )
 }

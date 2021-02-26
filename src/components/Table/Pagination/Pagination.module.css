@@ -18,3 +18,11 @@
 .pageButton:not(:last-child) {
     margin-right: 3px;
 }
+
+.fastTravelLeftBox {
+    margin-right: 10px;
+}
+
+.fastTravelRightBox {
+    margin-left: 10px;
+}
