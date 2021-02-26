@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import Table, {TTableHeaderFields} from './components/Table/Table'
+import data from './users.json'
+
+type TValues = {
+  id: number,
+  name: string,
+  username: string,
+  email: string,
+  phone: string,
+  website: string
+}
+type THeaderKeys = keyof TValues
 
 function App() {
+  const header: TTableHeaderFields = new Map<THeaderKeys, string | number>([
+    ['id', 'id'],
+    ['name', 'Имя'],
+    ['username', 'Никнейм'],
+    ['email', 'Почта'],
+    ['phone', 'Номер телефона'],
+    ['website', 'веб-сайт'],
+  ])
+
+  const values: TValues[] = data
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Table
+        title='Список пользователей'
+        headerFields={header}
+        values={values}
+      />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
